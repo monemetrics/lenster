@@ -39,9 +39,11 @@ const PublicationHeader: FC<PublicationHeaderProps> = ({ publication, className 
         <span onClick={stopEventPropagation}>
           <UserProfile profile={profile} timestamp={timestamp} showStatus />
         </span>
-        <label className="!bg-brand-500 text-brand border-brand-300 dark:border-brand-500 ml-4 mb-5 rounded-full border px-3 py-1.5 text-xs !text-white dark:bg-opacity-10 sm:px-4">
-          {publication?.metadata.attributes.find((e) => e.traitType === 'zk3Circle')?.value?.toString()}
-        </label>
+        {publication?.metadata.attributes.find((e) => e.traitType === 'zk3Circle') && (
+          <label className="!bg-brand-500 text-brand border-brand-300 dark:border-brand-500 ml-4 mb-5 rounded-full border px-3 py-1.5 text-xs !text-white dark:bg-opacity-10 sm:px-4">
+            {publication?.metadata.attributes.find((e) => e.traitType === 'zk3Circle')?.value?.toString()}
+          </label>
+        )}
       </div>
       <div className="!-mr-[7px] flex items-center space-x-1">
         {modMode && <Source publication={publication} />}

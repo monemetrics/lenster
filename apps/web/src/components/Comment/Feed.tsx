@@ -67,7 +67,16 @@ const Feed: FC<FeedProps> = ({ publication }) => {
 
   return (
     <>
-      {currentProfile ? canComment ? <NewPublication publication={publication} /> : <CommentWarning /> : null}
+      {currentProfile ? (
+        canComment ? (
+          <NewPublication publication={publication} />
+        ) : (
+          <>
+            <CommentWarning />
+            <label>{JSON.stringify(publication)}</label>
+          </>
+        )
+      ) : null}
       {loading && <PublicationsShimmer />}
       {!loading && totalComments === 0 && (
         <EmptyState
