@@ -619,24 +619,24 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
           console.log("roots don't match");
           return;
         }
-        let unpacked_proof_array: BigNumber[] = new Array(8);
-        unpacked_proof_array = proof?.proof.map((p) => BigNumber.from(p));
-        if (unpacked_proof_array.length !== 8) {
-          throw new Error('error unpacking proof array');
-        }
-        // const isValid = await readContract({
-        //   address: SEMAPHORE_ZK3_CONTRACT_ADDRESS,
-        //   abi: SEMAPHORE_ZK3_CONTRACT_ABI,
-        //   functionName: 'isValidProof',
-        //   args: [
-        //     hashedPostBody,
-        //     BigNumber.from(proof?.nullifierHash),
-        //     BigNumber.from(publicationSelectedCircle?.id),
-        //     BigNumber.from(proof?.externalNullifier),
-        //     unpacked_proof_array // here <-------------------------------------------------------------------------------------------------------------------
-        //   ]
-        // });
-        //console.log('isValid', isValid);
+        // let unpacked_proof_array: BigNumber[] = new Array(8);
+        // unpacked_proof_array = proof?.proof.map((p) => BigNumber.from(p));
+        // if (unpacked_proof_array.length !== 8) {
+        //   throw new Error('error unpacking proof array');
+        // }
+        const isValid = await readContract({
+          address: SEMAPHORE_ZK3_CONTRACT_ADDRESS,
+          abi: SEMAPHORE_ZK3_CONTRACT_ABI,
+          functionName: 'isValidProof',
+          args: [
+            hashedPostBody,
+            BigNumber.from(proof?.nullifierHash),
+            BigNumber.from(publicationSelectedCircle?.id),
+            BigNumber.from(proof?.externalNullifier),
+            proof?.proof
+          ]
+        });
+        console.log('isValid', isValid);
       }
 
       // if ZK3 Proof attached, temp force to ZK3 reference module
