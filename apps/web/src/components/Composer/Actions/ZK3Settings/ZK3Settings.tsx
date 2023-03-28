@@ -19,6 +19,7 @@ import AttachProofSettings from './AttachProofSettings';
 const ZK3: FC = () => {
   // const attachments = usePublicationStore((state) => state.attachments);
 
+  const publicationSelectedCircle = usePublicationStore((state) => state.publicationSelectedCircle);
   const isUploading = usePublicationStore((state) => state.isUploading);
   const [showMenu, setShowMenu] = useState(false);
   const id = useId();
@@ -38,7 +39,9 @@ const ZK3: FC = () => {
           <Spinner size="sm" />
         ) : (
           <Tooltip placement="top" content="ZK3">
-            <KeyIcon className="text-brand h-5 w-5" />
+            <KeyIcon
+              className={clsx(publicationSelectedCircle ? 'text-green-500' : 'text-brand', 'h-5 w-5')}
+            />
           </Tooltip>
         )}
       </Menu.Button>

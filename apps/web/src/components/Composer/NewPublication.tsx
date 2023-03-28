@@ -21,12 +21,13 @@ import { Mixpanel } from '@lib/mixpanel';
 import onError from '@lib/onError';
 import splitSignature from '@lib/splitSignature';
 import uploadToArweave from '@lib/uploadToArweave';
+import uploadToIPFS from '@lib/uploadToIPFS';
 import { t } from '@lingui/macro';
 import { Group } from '@semaphore-protocol/group';
 import { Identity } from '@semaphore-protocol/identity';
 import type { FullProof } from '@semaphore-protocol/proof';
 import { generateProof, verifyProof } from '@semaphore-protocol/proof';
-import { readContract } from '@wagmi/core';
+import { readContract, writeContract } from '@wagmi/core';
 import { LensHub } from 'abis';
 import clsx from 'clsx';
 import {
@@ -482,6 +483,7 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
   };
 
   const createPublication = async () => {
+    console.log('entering createPublication');
     if (!currentProfile) {
       return toast.error(SIGN_WALLET);
     }
@@ -496,7 +498,6 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
           return setPublicationContentError(issue.message);
         }
       }
-
       if (publicationContent.length === 0 && attachments.length === 0) {
         return setPublicationContentError(`${isComment ? 'Comment' : 'Post'} should not be empty!`);
       }
@@ -568,8 +569,11 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
       };
 
       let arweaveId = null;
+      let ipfsId = null;
       if (restricted) {
         arweaveId = await createTokenGatedMetadata(metadata);
+      } else if (publicationSelectedCircle) {
+        ipfsId = await uploadToIPFS(metadata);
       } else {
         arweaveId = await createMetadata(metadata);
       }
@@ -589,7 +593,11 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
       };
 
       if (publicationSelectedCircle) {
-        const { proof, group } = (await createZK3Proof(identity!, publicationSelectedCircle, ''))!;
+        const { proof, group } = (await createZK3Proof(
+          identity!,
+          publicationSelectedCircle,
+          publicationContent
+        ))!;
 
         const rootOnChain = await readContract({
           address: SEMAPHORE_ZK3_CONTRACT_ADDRESS,
@@ -619,11 +627,6 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
           console.log("roots don't match");
           return;
         }
-        // let unpacked_proof_array: BigNumber[] = new Array(8);
-        // unpacked_proof_array = proof?.proof.map((p) => BigNumber.from(p));
-        // if (unpacked_proof_array.length !== 8) {
-        //   throw new Error('error unpacking proof array');
-        // }
         const isValid = await readContract({
           address: SEMAPHORE_ZK3_CONTRACT_ADDRESS,
           abi: SEMAPHORE_ZK3_CONTRACT_ABI,
@@ -643,7 +646,7 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
       // if ZK3 Proof attached, temp force to ZK3 reference module
       const request: CreatePublicPostRequest | CreatePublicCommentRequest = {
         profileId: currentProfile?.id,
-        contentURI: `ar://${arweaveId}`,
+        contentURI: publicationSelectedCircle ? `ipfs://${ipfsId}` : `ar://${arweaveId}`,
         ...(isComment && {
           publicationId: publication.__typename === 'Mirror' ? publication?.mirrorOf?.id : publication?.id
         }),
@@ -657,11 +660,9 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
             }
           : calcRefModule()
       };
-
       if (currentProfile?.dispatcher?.canUseRelay) {
         return await createViaDispatcher(request);
       }
-
       if (isComment) {
         return await createCommentTypedData({
           variables: {
@@ -670,6 +671,7 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
           }
         });
       }
+      console.log('checkpoint');
 
       return await createPostTypedData({
         variables: { options: { overrideSigNonce: userSigNonce }, request }
