@@ -14,6 +14,12 @@ module.exports = withSentryConfig(
       newNextLinkBehavior: true,
       swcPlugins: [['@lingui/swc-plugin', {}]]
     },
+    webpack: (config) => {
+      // Fixes npm packages that depend on `fs` module
+      config.resolve.fallback = { fs: false }
+  
+      return config
+    },
     async rewrites() {
       return [
         {

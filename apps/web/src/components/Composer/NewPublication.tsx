@@ -633,6 +633,7 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
             BigNumber.from(proof?.nullifierHash),
             BigNumber.from(publicationSelectedCircle?.id),
             BigNumber.from(proof?.externalNullifier),
+            // @ts-ignore
             proof?.proof
           ]
         });

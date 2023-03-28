@@ -8,7 +8,8 @@
       "@utils*": ["src/utils*"],
       "@lib*": ["src/lib*"],
       "@gql*": ["src/graphql*"],
-      "@generated*": ["src/generated*"]
+      "@generated*": ["src/generated*"],
+      "fs": ["./node_modules/browserify-fs"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "src/styles/index.css"]
