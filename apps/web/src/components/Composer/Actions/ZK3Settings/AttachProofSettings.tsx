@@ -8,6 +8,7 @@ import clsx from 'clsx';
 import type { Dispatch, FC, ReactNode } from 'react';
 import { useEffect, useState } from 'react';
 import { useAccessSettingsStore } from 'src/store/access-settings';
+import { usePublicationStore } from 'src/store/publication';
 import { useSignMessage } from 'wagmi';
 
 interface AttachProofSettings {
@@ -57,13 +58,18 @@ const ZK3Proof: FC<ModuleProps> = ({ title, icon, onClick, selected }) => (
   </div>
 );
 
-const AttachProofSettings: FC<AttachProofSettings> = ({ setShowModal }) => {
+interface AttachProofProps {
+  setShowModal: Dispatch<boolean>;
+}
+
+const AttachProofSettings: FC<AttachProofProps> = ({ setShowModal }) => {
   const hasConditions = useAccessSettingsStore((state) => state.hasConditions);
   const reset = useAccessSettingsStore((state) => state.reset);
+  const publicationSelectedCircle = usePublicationStore((state) => state.publicationSelectedCircle);
+  const setPublicationSelectedCircle = usePublicationStore((state) => state.setPublicationSelectedCircle);
   const { signMessageAsync } = useSignMessage({ onError });
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [myCircleList, setMyCircleList] = useState<circle[]>([]);
-  const [selectedCircle, setSelectedCircle] = useState<circle | null>(null);
 
   useEffect(() => {
     const identityString = localStorage.getItem('ZK3_identity');
@@ -123,10 +129,10 @@ const AttachProofSettings: FC<AttachProofSettings> = ({ setShowModal }) => {
             <ZK3Proof
               key={circle.id}
               title={circle.description}
-              selected={selectedCircle?.id === circle.id}
+              selected={publicationSelectedCircle ? publicationSelectedCircle.id === circle.id : false}
               icon={<KeyIcon className="h-4 w-4" />}
               onClick={() => {
-                setSelectedCircle(circle);
+                setPublicationSelectedCircle(circle);
               }}
             />
           ))}
