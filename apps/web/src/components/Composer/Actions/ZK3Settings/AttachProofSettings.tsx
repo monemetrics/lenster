@@ -138,13 +138,28 @@ const AttachProofSettings: FC<AttachProofProps> = ({ setShowModal }) => {
           ))}
         </>
       )}
-      <div className="flex space-x-2 pt-5">
-        <Button className="ml-auto" variant="danger" outline onClick={onSave}>
-          <Trans>Cancel</Trans>
-        </Button>
-        <Button onClick={onSave}>
-          <Trans>Save</Trans>
-        </Button>
+      <div className="flex justify-between space-x-2 pt-5">
+        <a href="https://zk3-app-zk3.vercel.app/" target="_blank">
+          <Button>
+            <Trans>New Proof</Trans>
+          </Button>
+        </a>
+        <div className="flex justify-end space-x-2">
+          <Button
+            className="ml-auto"
+            variant="danger"
+            outline
+            onClick={() => {
+              setPublicationSelectedCircle(null);
+              onSave();
+            }}
+          >
+            <Trans>Cancel</Trans>
+          </Button>
+          <Button onClick={onSave}>
+            <Trans>Save</Trans>
+          </Button>
+        </div>
       </div>
     </div>
   );

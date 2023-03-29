@@ -15,7 +15,7 @@ interface PublicationState {
   setPublicationContent: (publicationContent: string) => void;
   //ZK3 Proof attachment
   publicationSelectedCircle: circle | null;
-  setPublicationSelectedCircle: (publicationSelectedCircle: circle) => void;
+  setPublicationSelectedCircle: (publicationSelectedCircle: circle | null) => void;
   // end ZK3 Proof attachment
   audioPublication: { title: string; author: string; cover: string; coverMimeType: string };
   setAudioPublication: (audioPublication: {

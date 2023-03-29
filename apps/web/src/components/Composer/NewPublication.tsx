@@ -27,7 +27,7 @@ import { Group } from '@semaphore-protocol/group';
 import { Identity } from '@semaphore-protocol/identity';
 import type { FullProof } from '@semaphore-protocol/proof';
 import { generateProof, verifyProof } from '@semaphore-protocol/proof';
-import { readContract, writeContract } from '@wagmi/core';
+import { readContract } from '@wagmi/core';
 import { LensHub } from 'abis';
 import clsx from 'clsx';
 import {
