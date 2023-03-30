@@ -91,6 +91,7 @@ const Navbar: FC = () => {
                     alt="Logo"
                   />
                 </Link>
+                <span className="ml-2">zk3 edition</span>
                 <div className="hidden sm:ml-6 md:block">
                   <div className="flex items-center space-x-4">
                     <div className="hidden md:block">
