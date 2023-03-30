@@ -114,6 +114,24 @@ interface circle {
   contentURI: string;
 }
 
+const PINATA_JWT = process.env.NEXT_PUBLIC_PINATA_JWT;
+async function uploadJSONToIPFS(val: string) {
+  // upload to ipfs.io
+  const res = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
+    method: 'post',
+    body: val,
+    headers: {
+      'Content-type': 'application/json',
+      Authorization: `Bearer ${PINATA_JWT}`
+    }
+  });
+  const { IpfsHash } = await res.json();
+  const contentURI = `ipfs://${IpfsHash}`;
+  console.log('contentURI: ', contentURI);
+  return contentURI;
+  // return res.json()
+}
+
 const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
   // App store
   const userSigNonce = useAppStore((state) => state.userSigNonce);
@@ -573,7 +591,8 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
       if (restricted) {
         arweaveId = await createTokenGatedMetadata(metadata);
       } else if (publicationSelectedCircle) {
-        ipfsId = await uploadToIPFS(metadata);
+        // ipfsId = await uploadToIPFS(metadata);
+        ipfsId = await uploadJSONToIPFS(JSON.stringify(metadata));
       } else {
         arweaveId = await createMetadata(metadata);
       }
