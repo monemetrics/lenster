@@ -21,7 +21,6 @@ import { Mixpanel } from '@lib/mixpanel';
 import onError from '@lib/onError';
 import splitSignature from '@lib/splitSignature';
 import uploadToArweave from '@lib/uploadToArweave';
-import uploadToIPFS from '@lib/uploadToIPFS';
 import { t } from '@lingui/macro';
 import { Group } from '@semaphore-protocol/group';
 import { Identity } from '@semaphore-protocol/identity';
