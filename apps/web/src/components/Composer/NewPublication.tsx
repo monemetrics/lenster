@@ -609,7 +609,7 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
           }
         };
       };
-
+      let initData: string = ZK3ReferenceModuleInitData;
       if (publicationSelectedCircle) {
         const { proof, group } = (await createZK3Proof(
           identity!,
@@ -624,20 +624,22 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
           args: [BigNumber.from(publicationSelectedCircle?.id)]
         });
         const hashedPostBody = BigNumber.from(keccak256(Buffer.from(publicationContent)));
-        setZK3ReferenceModuleInitData(
-          ethers.utils.AbiCoder.prototype.encode(
-            ['bool', 'bool', 'uint256', 'uint256', 'uint256', 'uint256', 'uint256[8]'],
-            [
-              false,
-              false,
-              hashedPostBody,
-              proof?.nullifierHash,
-              publicationSelectedCircle?.id.toString(),
-              proof?.externalNullifier,
-              proof?.proof
-            ]
-          )
+        initData = ethers.utils.AbiCoder.prototype.encode(
+          ['bool', 'bool', 'uint256', 'uint256', 'uint256', 'uint256', 'uint256[8]'],
+          [
+            false,
+            false,
+            hashedPostBody,
+            proof?.nullifierHash,
+            publicationSelectedCircle?.id.toString(),
+            proof?.externalNullifier,
+            proof?.proof
+          ]
         );
+        console.log('initData', initData);
+        setZK3ReferenceModuleInitData(initData);
+        console.log('ZK3ReferenceModuleInitData', ZK3ReferenceModuleInitData);
+
         console.log('rootOnChain', rootOnChain.toString());
         // check if roots match
         if (rootOnChain.toString() !== group.root.toString()) {
@@ -658,13 +660,26 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
             proof?.proof
           ]
         });
+
         console.log('isValid', isValid);
       }
+
+      // const { error: postTxError, write: publishPost } = useContractWrite({
+      //   address: LENSHUB_PROXY,
+      //   abi: LensHub,
+      //   functionName: isComment ? 'comment' : 'post',
+      //   mode: 'recklesslyUnprepared',
+      //   onSuccess: ({ hash }) => {
+      //     onCompleted();
+      //     setTxnQueue([generateOptimisticPublication({ txHash: hash }), ...txnQueue]);
+      //   },
+      //   onError
+      // });
 
       // if ZK3 Proof attached, temp force to ZK3 reference module
       const request: CreatePublicPostRequest | CreatePublicCommentRequest = {
         profileId: currentProfile?.id,
-        contentURI: publicationSelectedCircle ? `ipfs://${ipfsId}` : `ar://${arweaveId}`,
+        contentURI: publicationSelectedCircle ? `${ipfsId}` : `ar://${arweaveId}`,
         ...(isComment && {
           publicationId: publication.__typename === 'Mirror' ? publication?.mirrorOf?.id : publication?.id
         }),
@@ -673,11 +688,14 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
           ? {
               unknownReferenceModule: {
                 contractAddress: ZK3ReferenceModule,
-                data: ZK3ReferenceModuleInitData
+                data: initData
               }
             }
           : calcRefModule()
       };
+
+      console.log('request', request);
+
       if (currentProfile?.dispatcher?.canUseRelay) {
         return await createViaDispatcher(request);
       }
@@ -690,7 +708,18 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
         });
       }
       console.log('checkpoint');
-
+      // return await publishPost({
+      //   recklesslySetUnpreparedArgs: [
+      //     {
+      //       profileId: request.profileId,
+      //       contentURI: request.contentURI,
+      //       collectModule: '0x',
+      //       collectModuleInitData: '0x',
+      //       referenceModule: ZK3ReferenceModule, // add address of LensZK3ReferenceModule here
+      //       referenceModuleInitData: initData // add ABI encoded proof here
+      //     }
+      //   ]
+      // });
       return await createPostTypedData({
         variables: { options: { overrideSigNonce: userSigNonce }, request }
       });
