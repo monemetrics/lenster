@@ -6,474 +6,487 @@ export const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 export const IS_PREVIEW = process.env.NEXT_PUBLIC_VERCEL_ENV === 'preview';
 
 // ZK3
-export const SEMAPHORE_ZK3_CONTRACT_ADDRESS = '0x7aF57c4d676d9ADFA1271688c0329bc116bfFA64';
+export const SEMAPHORE_ZK3_CONTRACT_ADDRESS = '0xba4cf9D716Ec42E2996Fc2e6b8B97854CD344Ce3';
+export const ZK3_REFERENCE_MODULE_ADDRESS = '0x60a867ACF71d5c7cDf357d70CdC4FBAF7CcBdBb0'
 export const SEMAPHORE_ZK3_CONTRACT_ABI = [
   {
-    inputs: [
-      {
-        internalType: 'contract ISemaphoreVerifier',
-        name: '_verifier',
-        type: 'address'
-      }
-    ],
-    stateMutability: 'nonpayable',
-    type: 'constructor'
+      inputs: [
+          {
+              internalType: "contract ISemaphoreVerifier",
+              name: "_verifier",
+              type: "address"
+          }
+      ],
+      stateMutability: "nonpayable",
+      type: "constructor"
   },
   {
-    inputs: [],
-    name: 'Semaphore__CallerIsNotCoordinator',
-    type: 'error'
+      inputs: [],
+      name: "Semaphore__CallerIsNotCoordinator",
+      type: "error"
   },
   {
-    inputs: [],
-    name: 'Semaphore__GroupAlreadyExists',
-    type: 'error'
+      inputs: [],
+      name: "Semaphore__GroupAlreadyExists",
+      type: "error"
   },
   {
-    inputs: [],
-    name: 'Semaphore__GroupDoesNotExist',
-    type: 'error'
+      inputs: [],
+      name: "Semaphore__GroupDoesNotExist",
+      type: "error"
   },
   {
-    inputs: [],
-    name: 'Semaphore__MerkleTreeDepthIsNotSupported',
-    type: 'error'
+      inputs: [],
+      name: "Semaphore__MerkleTreeDepthIsNotSupported",
+      type: "error"
   },
   {
-    inputs: [],
-    name: 'Semaphore__YouAreUsingTheSameNillifierTwice',
-    type: 'error'
+      inputs: [],
+      name: "Semaphore__YouAreUsingTheSameNillifierTwice",
+      type: "error"
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'circleId',
-        type: 'uint256'
-      },
-      {
-        indexed: true,
-        internalType: 'address',
-        name: 'coordinator',
-        type: 'address'
-      }
-    ],
-    name: 'CircleCreated',
-    type: 'event'
+      anonymous: false,
+      inputs: [
+          {
+              indexed: false,
+              internalType: "uint256",
+              name: "circleId",
+              type: "uint256"
+          },
+          {
+              indexed: true,
+              internalType: "address",
+              name: "coordinator",
+              type: "address"
+          },
+          {
+              indexed: false,
+              internalType: "string",
+              name: "contentURI",
+              type: "string"
+          }
+      ],
+      name: "CircleCreated",
+      type: "event"
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'circleId',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'string',
-        name: 'contentURI',
-        type: 'string'
-      }
-    ],
-    name: 'CircleURIUpdated',
-    type: 'event'
+      anonymous: false,
+      inputs: [
+          {
+              indexed: true,
+              internalType: "uint256",
+              name: "circleId",
+              type: "uint256"
+          },
+          {
+              indexed: false,
+              internalType: "string",
+              name: "contentURI",
+              type: "string"
+          }
+      ],
+      name: "CircleURIUpdated",
+      type: "event"
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'groupId',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'merkleTreeDepth',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'zeroValue',
-        type: 'uint256'
-      }
-    ],
-    name: 'GroupCreated',
-    type: 'event'
+      anonymous: false,
+      inputs: [
+          {
+              indexed: true,
+              internalType: "uint256",
+              name: "groupId",
+              type: "uint256"
+          },
+          {
+              indexed: false,
+              internalType: "uint256",
+              name: "merkleTreeDepth",
+              type: "uint256"
+          },
+          {
+              indexed: false,
+              internalType: "uint256",
+              name: "zeroValue",
+              type: "uint256"
+          }
+      ],
+      name: "GroupCreated",
+      type: "event"
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'groupId',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'index',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'identityCommitment',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'merkleTreeRoot',
-        type: 'uint256'
-      }
-    ],
-    name: 'MemberAdded',
-    type: 'event'
+      anonymous: false,
+      inputs: [
+          {
+              indexed: true,
+              internalType: "uint256",
+              name: "groupId",
+              type: "uint256"
+          },
+          {
+              indexed: false,
+              internalType: "uint256",
+              name: "index",
+              type: "uint256"
+          },
+          {
+              indexed: false,
+              internalType: "uint256",
+              name: "identityCommitment",
+              type: "uint256"
+          },
+          {
+              indexed: false,
+              internalType: "uint256",
+              name: "merkleTreeRoot",
+              type: "uint256"
+          }
+      ],
+      name: "MemberAdded",
+      type: "event"
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'groupId',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'index',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'identityCommitment',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'merkleTreeRoot',
-        type: 'uint256'
-      }
-    ],
-    name: 'MemberRemoved',
-    type: 'event'
+      anonymous: false,
+      inputs: [
+          {
+              indexed: true,
+              internalType: "uint256",
+              name: "groupId",
+              type: "uint256"
+          },
+          {
+              indexed: false,
+              internalType: "uint256",
+              name: "index",
+              type: "uint256"
+          },
+          {
+              indexed: false,
+              internalType: "uint256",
+              name: "identityCommitment",
+              type: "uint256"
+          },
+          {
+              indexed: false,
+              internalType: "uint256",
+              name: "merkleTreeRoot",
+              type: "uint256"
+          }
+      ],
+      name: "MemberRemoved",
+      type: "event"
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'groupId',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'index',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'identityCommitment',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'newIdentityCommitment',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'merkleTreeRoot',
-        type: 'uint256'
-      }
-    ],
-    name: 'MemberUpdated',
-    type: 'event'
+      anonymous: false,
+      inputs: [
+          {
+              indexed: true,
+              internalType: "uint256",
+              name: "groupId",
+              type: "uint256"
+          },
+          {
+              indexed: false,
+              internalType: "uint256",
+              name: "index",
+              type: "uint256"
+          },
+          {
+              indexed: false,
+              internalType: "uint256",
+              name: "identityCommitment",
+              type: "uint256"
+          },
+          {
+              indexed: false,
+              internalType: "uint256",
+              name: "newIdentityCommitment",
+              type: "uint256"
+          },
+          {
+              indexed: false,
+              internalType: "uint256",
+              name: "merkleTreeRoot",
+              type: "uint256"
+          }
+      ],
+      name: "MemberUpdated",
+      type: "event"
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: 'uint256',
-        name: 'circleId',
-        type: 'uint256'
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'signal',
-        type: 'uint256'
-      }
-    ],
-    name: 'MembershipVerified',
-    type: 'event'
+      anonymous: false,
+      inputs: [
+          {
+              indexed: true,
+              internalType: "uint256",
+              name: "circleId",
+              type: "uint256"
+          },
+          {
+              indexed: false,
+              internalType: "uint256",
+              name: "signal",
+              type: "uint256"
+          },
+          {
+              indexed: false,
+              internalType: "uint256[8]",
+              name: "proof",
+              type: "uint256[8]"
+          }
+      ],
+      name: "MembershipVerified",
+      type: "event"
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'circleId',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256',
-        name: 'identityCommitment',
-        type: 'uint256'
-      },
-      {
-        internalType: 'string',
-        name: 'contentURI',
-        type: 'string'
-      }
-    ],
-    name: 'addIdentity',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function'
+      inputs: [
+          {
+              internalType: "uint256",
+              name: "circleId",
+              type: "uint256"
+          },
+          {
+              internalType: "uint256",
+              name: "identityCommitment",
+              type: "uint256"
+          },
+          {
+              internalType: "string",
+              name: "contentURI",
+              type: "string"
+          }
+      ],
+      name: "addIdentity",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function"
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'signal',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256',
-        name: 'nullifierHash',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256',
-        name: 'circleId',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256',
-        name: 'externalNullifier',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256[8]',
-        name: 'proof',
-        type: 'uint256[8]'
-      }
-    ],
-    name: 'broadcastSignal',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function'
+      inputs: [
+          {
+              internalType: "uint256",
+              name: "signal",
+              type: "uint256"
+          },
+          {
+              internalType: "uint256",
+              name: "nullifierHash",
+              type: "uint256"
+          },
+          {
+              internalType: "uint256",
+              name: "circleId",
+              type: "uint256"
+          },
+          {
+              internalType: "uint256",
+              name: "externalNullifier",
+              type: "uint256"
+          },
+          {
+              internalType: "uint256[8]",
+              name: "proof",
+              type: "uint256[8]"
+          }
+      ],
+      name: "broadcastSignal",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function"
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'circleId',
-        type: 'uint256'
-      },
-      {
-        internalType: 'address',
-        name: 'coordinator',
-        type: 'address'
-      },
-      {
-        internalType: 'uint256',
-        name: 'merkleTreeDepth',
-        type: 'uint256'
-      },
-      {
-        internalType: 'string',
-        name: 'contentURI',
-        type: 'string'
-      }
-    ],
-    name: 'createCircle',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function'
+      inputs: [
+          {
+              internalType: "uint256",
+              name: "circleId",
+              type: "uint256"
+          },
+          {
+              internalType: "address",
+              name: "coordinator",
+              type: "address"
+          },
+          {
+              internalType: "uint256",
+              name: "merkleTreeDepth",
+              type: "uint256"
+          },
+          {
+              internalType: "string",
+              name: "contentURI",
+              type: "string"
+          }
+      ],
+      name: "createCircle",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function"
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'circleId',
-        type: 'uint256'
-      }
-    ],
-    name: 'getContentURI',
-    outputs: [
-      {
-        internalType: 'string',
-        name: '',
-        type: 'string'
-      }
-    ],
-    stateMutability: 'view',
-    type: 'function'
+      inputs: [
+          {
+              internalType: "uint256",
+              name: "circleId",
+              type: "uint256"
+          }
+      ],
+      name: "getContentURI",
+      outputs: [
+          {
+              internalType: "string",
+              name: "",
+              type: "string"
+          }
+      ],
+      stateMutability: "view",
+      type: "function"
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'groupId',
-        type: 'uint256'
-      }
-    ],
-    name: 'getMerkleTreeDepth',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256'
-      }
-    ],
-    stateMutability: 'view',
-    type: 'function'
+      inputs: [
+          {
+              internalType: "uint256",
+              name: "groupId",
+              type: "uint256"
+          }
+      ],
+      name: "getMerkleTreeDepth",
+      outputs: [
+          {
+              internalType: "uint256",
+              name: "",
+              type: "uint256"
+          }
+      ],
+      stateMutability: "view",
+      type: "function"
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'groupId',
-        type: 'uint256'
-      }
-    ],
-    name: 'getMerkleTreeRoot',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256'
-      }
-    ],
-    stateMutability: 'view',
-    type: 'function'
+      inputs: [
+          {
+              internalType: "uint256",
+              name: "groupId",
+              type: "uint256"
+          }
+      ],
+      name: "getMerkleTreeRoot",
+      outputs: [
+          {
+              internalType: "uint256",
+              name: "",
+              type: "uint256"
+          }
+      ],
+      stateMutability: "view",
+      type: "function"
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'groupId',
-        type: 'uint256'
-      }
-    ],
-    name: 'getNumberOfMerkleTreeLeaves',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256'
-      }
-    ],
-    stateMutability: 'view',
-    type: 'function'
+      inputs: [
+          {
+              internalType: "uint256",
+              name: "groupId",
+              type: "uint256"
+          }
+      ],
+      name: "getNumberOfMerkleTreeLeaves",
+      outputs: [
+          {
+              internalType: "uint256",
+              name: "",
+              type: "uint256"
+          }
+      ],
+      stateMutability: "view",
+      type: "function"
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'signal',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256',
-        name: 'nullifierHash',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256',
-        name: 'circleId',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256',
-        name: 'externalNullifier',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256[8]',
-        name: 'proof',
-        type: 'uint256[8]'
-      }
-    ],
-    name: 'isValidProof',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool'
-      }
-    ],
-    stateMutability: 'view',
-    type: 'function'
+      inputs: [
+          {
+              internalType: "uint256",
+              name: "signal",
+              type: "uint256"
+          },
+          {
+              internalType: "uint256",
+              name: "nullifierHash",
+              type: "uint256"
+          },
+          {
+              internalType: "uint256",
+              name: "circleId",
+              type: "uint256"
+          },
+          {
+              internalType: "uint256",
+              name: "externalNullifier",
+              type: "uint256"
+          },
+          {
+              internalType: "uint256[8]",
+              name: "proof",
+              type: "uint256[8]"
+          }
+      ],
+      name: "isValidProof",
+      outputs: [
+          {
+              internalType: "bool",
+              name: "",
+              type: "bool"
+          }
+      ],
+      stateMutability: "view",
+      type: "function"
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'circleId',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256',
-        name: 'identityCommitment',
-        type: 'uint256'
-      },
-      {
-        internalType: 'uint256[]',
-        name: 'proofSiblings',
-        type: 'uint256[]'
-      },
-      {
-        internalType: 'uint8[]',
-        name: 'proofPathIndices',
-        type: 'uint8[]'
-      },
-      {
-        internalType: 'string',
-        name: 'contentURI',
-        type: 'string'
-      }
-    ],
-    name: 'revokeIdentity',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function'
+      inputs: [
+          {
+              internalType: "uint256",
+              name: "circleId",
+              type: "uint256"
+          },
+          {
+              internalType: "uint256",
+              name: "identityCommitment",
+              type: "uint256"
+          },
+          {
+              internalType: "uint256[]",
+              name: "proofSiblings",
+              type: "uint256[]"
+          },
+          {
+              internalType: "uint8[]",
+              name: "proofPathIndices",
+              type: "uint8[]"
+          },
+          {
+              internalType: "string",
+              name: "contentURI",
+              type: "string"
+          }
+      ],
+      name: "revokeIdentity",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function"
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'circleId',
-        type: 'uint256'
-      },
-      {
-        internalType: 'string',
-        name: 'contentURI',
-        type: 'string'
-      }
-    ],
-    name: 'updateContentURI',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function'
+      inputs: [
+          {
+              internalType: "uint256",
+              name: "circleId",
+              type: "uint256"
+          },
+          {
+              internalType: "string",
+              name: "contentURI",
+              type: "string"
+          }
+      ],
+      name: "updateContentURI",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function"
   }
 ] as const;
 
@@ -541,7 +554,7 @@ export const METADATA_WORKER_URL = IS_PRODUCTION ? 'https://metadata.lenster.xyz
 export const FRESHDESK_WORKER_URL = IS_PRODUCTION ? 'https://freshdesk.lenster.xyz' : 'http://localhost:8084';
 
 // Web3
-export const ALCHEMY_KEY = 'hIkqzkiKqsaMEVpKoGoi0D8uZCvFXz0U';
+export const ALCHEMY_KEY = 'oAMpbRc8dSPSJBeY4DQb-Ah9Jd5JCmgb';
 export const WALLETCONNECT_PROJECT_ID = 'cd542acc70c2b548030f9901a52e70c8';
 
 // Errors

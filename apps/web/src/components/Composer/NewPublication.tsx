@@ -38,6 +38,7 @@ import {
   LIT_PROTOCOL_ENVIRONMENT,
   SEMAPHORE_ZK3_CONTRACT_ABI,
   SEMAPHORE_ZK3_CONTRACT_ADDRESS,
+  ZK3_REFERENCE_MODULE_ADDRESS,
   SIGN_WALLET
 } from 'data/constants';
 import { BigNumber, ethers } from 'ethers';
@@ -99,7 +100,7 @@ const ZK3Settings = dynamic(() => import('@components/Composer/Actions/ZK3Settin
   loading: () => <div className="shimmer mb-1 h-5 w-5 rounded-lg" />
 });
 
-const ZK3ReferenceModule: string = '0x69482d8265CE6EEF4a2E00591E801D03A755521E';
+const ZK3ReferenceModule: string = ZK3_REFERENCE_MODULE_ADDRESS;
 const ZK3ReferenceModuleInitData: string =
   '0x0000000000000000000000000000000000000000000000000000000000000000';
 interface NewPublicationProps {
