@@ -1,33 +1,32 @@
 import MenuTransition from '@components/Shared/MenuTransition';
+import HelpTooltip from '@components/UI/HelpTooltip';
+import { Modal } from '@components/UI/Modal';
 import { Spinner } from '@components/UI/Spinner';
 import { Tooltip } from '@components/UI/Tooltip';
 import useOnClickOutside from '@components/utils/hooks/useOnClickOutside';
 import { Menu } from '@headlessui/react';
-import { KeyIcon,MusicNoteIcon, PhotographIcon, VideoCameraIcon } from '@heroicons/react/outline';
-import { Analytics } from '@lib/analytics';
-import { t } from '@lingui/macro';
+import { KeyIcon } from '@heroicons/react/outline';
+import { t, Trans } from '@lingui/macro';
 import clsx from 'clsx';
-import type { ChangeEvent, FC } from 'react';
+import type { FC } from 'react';
 import { useId, useRef, useState } from 'react';
-import toast from 'react-hot-toast';
+// import toast from 'react-hot-toast';
 import { usePublicationStore } from 'src/store/publication';
-import { PUBLICATION } from 'src/tracking';
+
+// import { PUBLICATION } from 'src/tracking';
+import AttachProofSettings from './AttachProofSettings';
 
 const ZK3: FC = () => {
-  const attachments = usePublicationStore((state) => state.attachments);
+  // const attachments = usePublicationStore((state) => state.attachments);
+
+  const publicationSelectedCircle = usePublicationStore((state) => state.publicationSelectedCircle);
   const isUploading = usePublicationStore((state) => state.isUploading);
   const [showMenu, setShowMenu] = useState(false);
   const id = useId();
   const dropdownRef = useRef(null);
+  const [showModal, setShowModal] = useState(false);
 
   useOnClickOutside(dropdownRef, () => setShowMenu(false));
-
-  const handleZK3 = async (evt: ChangeEvent<HTMLInputElement>) => {
-    evt.preventDefault();
-    setShowMenu(false);
-
-    alert('Work in progress. Please check back later.');
-  };
 
   return (
     <Menu as="div">
@@ -40,7 +39,9 @@ const ZK3: FC = () => {
           <Spinner size="sm" />
         ) : (
           <Tooltip placement="top" content="ZK3">
-            <KeyIcon className="w-5 h-5 text-brand" />
+            <KeyIcon
+              className={clsx(publicationSelectedCircle ? 'text-green-500' : 'text-brand', 'h-5 w-5')}
+            />
           </Tooltip>
         )}
       </Menu.Button>
@@ -48,24 +49,41 @@ const ZK3: FC = () => {
         <Menu.Items
           ref={dropdownRef}
           static
-          className="absolute py-1 z-[5] mt-2 bg-white rounded-xl border shadow-sm dark:bg-gray-900 focus:outline-none dark:border-gray-700"
+          className="absolute z-[5] mt-2 rounded-xl border bg-white py-1 shadow-sm focus:outline-none dark:border-gray-700 dark:bg-gray-900"
         >
           <Menu.Item
             as="label"
             className={({ active }) =>
               clsx(
                 { 'dropdown-active': active },
-                '!flex rounded-lg gap-1 space-x-1 items-center cursor-pointer menu-item'
+                'menu-item !flex cursor-pointer items-center gap-1 space-x-1 rounded-lg'
               )
             }
             htmlFor={`image_${id}`}
-            onClick={handleZK3}
+            onClick={() => setShowModal(!showModal)}
           >
-            <KeyIcon className="w-4 h-4 text-brand" />
+            <KeyIcon className="text-brand h-4 w-4" />
             <span className="text-sm">Attach ZK3 Proof</span>
           </Menu.Item>
         </Menu.Items>
       </MenuTransition>
+      <Modal
+        title={
+          <div className="flex items-center space-x-2">
+            <span>
+              <Trans>ZK3 Wizard</Trans>
+            </span>
+            <HelpTooltip content={t`Select or generate ZK3 proofs to attach to your post.`} />
+          </div>
+        }
+        icon={<KeyIcon className="text-brand h-5 w-5" />}
+        show={showModal}
+        onClose={() => {
+          setShowModal(false);
+        }}
+      >
+        <AttachProofSettings setShowModal={setShowModal} />
+      </Modal>
     </Menu>
   );
 };

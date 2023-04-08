@@ -22,6 +22,11 @@ import onError from '@lib/onError';
 import splitSignature from '@lib/splitSignature';
 import uploadToArweave from '@lib/uploadToArweave';
 import { t } from '@lingui/macro';
+import { Group } from '@semaphore-protocol/group';
+import { Identity } from '@semaphore-protocol/identity';
+import type { FullProof } from '@semaphore-protocol/proof';
+import { generateProof, verifyProof } from '@semaphore-protocol/proof';
+import { readContract } from '@wagmi/core';
 import { LensHub } from 'abis';
 import clsx from 'clsx';
 import {
@@ -31,8 +36,13 @@ import {
   APP_NAME,
   LENSHUB_PROXY,
   LIT_PROTOCOL_ENVIRONMENT,
+  SEMAPHORE_ZK3_CONTRACT_ABI,
+  SEMAPHORE_ZK3_CONTRACT_ADDRESS,
+  ZK3_REFERENCE_MODULE_ADDRESS,
   SIGN_WALLET
 } from 'data/constants';
+import { BigNumber, ethers } from 'ethers';
+import { keccak256 } from 'ethers/lib/utils';
 import type {
   CreatePublicCommentRequest,
   MetadataAttributeInput,
@@ -87,11 +97,39 @@ const AccessSettings = dynamic(() => import('@components/Composer/Actions/Access
   loading: () => <div className="shimmer mb-1 h-5 w-5 rounded-lg" />
 });
 const ZK3Settings = dynamic(() => import('@components/Composer/Actions/ZK3Settings/ZK3Settings'), {
-  loading: () => <div className="mb-1 w-5 h-5 rounded-lg shimmer" />
+  loading: () => <div className="shimmer mb-1 h-5 w-5 rounded-lg" />
 });
 
+const ZK3ReferenceModule: string = ZK3_REFERENCE_MODULE_ADDRESS;
+const ZK3ReferenceModuleInitData: string =
+  '0x0000000000000000000000000000000000000000000000000000000000000000';
 interface NewPublicationProps {
   publication: Publication;
+}
+interface circle {
+  id: string;
+  members: string[];
+  name: string;
+  description: string;
+  contentURI: string;
+}
+
+const PINATA_JWT = process.env.NEXT_PUBLIC_PINATA_JWT;
+async function uploadJSONToIPFS(val: string) {
+  // upload to ipfs.io
+  const res = await fetch('https://api.pinata.cloud/pinning/pinJSONToIPFS', {
+    method: 'post',
+    body: val,
+    headers: {
+      'Content-type': 'application/json',
+      Authorization: `Bearer ${PINATA_JWT}`
+    }
+  });
+  const { IpfsHash } = await res.json();
+  const contentURI = `ipfs://${IpfsHash}`;
+  console.log('contentURI: ', contentURI);
+  return contentURI;
+  // return res.json()
 }
 
 const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
@@ -103,6 +141,8 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
   // Publication store
   const publicationContent = usePublicationStore((state) => state.publicationContent);
   const setPublicationContent = usePublicationStore((state) => state.setPublicationContent);
+  const publicationSelectedCircle = usePublicationStore((state) => state.publicationSelectedCircle);
+  const setPublicationSelectedCircle = usePublicationStore((state) => state.setPublicationSelectedCircle);
   const audioPublication = usePublicationStore((state) => state.audioPublication);
   const setShowNewPostModal = usePublicationStore((state) => state.setShowNewPostModal);
   const attachments = usePublicationStore((state) => state.attachments);
@@ -136,6 +176,8 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
   const [editor] = useLexicalComposerContext();
   const provider = useProvider();
   const { data: signer } = useSigner();
+  const [identity, setIdentity] = useState<Identity | null>(null);
+  const [ZK3ReferenceModuleInitData, setZK3ReferenceModuleInitData] = useState<string>('');
 
   const isComment = Boolean(publication);
   const isAudioPublication = ALLOWED_AUDIO_TYPES.includes(attachments[0]?.type);
@@ -178,6 +220,18 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // ZK3 setup Identity state
+  useEffect(() => {
+    const identityString = localStorage.getItem('ZK3_identity');
+    if (identityString) {
+      const _identity = new Identity(identityString);
+      if (!identity) {
+        setIdentity(_identity);
+      }
+      console.log(_identity?.getCommitment());
+    }
+  }, [identity]);
 
   const generateOptimisticPublication = ({ txHash, txId }: { txHash?: string; txId?: string }) => {
     return {
@@ -402,7 +456,52 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
     return await uploadToArweave(metadata);
   };
 
+  // Generate Group from Circle
+  function generateGroupFromCircle(_circle: circle) {
+    const _group = new Group(_circle.id);
+    console.log('roop pre adding members: ', _group.root);
+    console.log('circle Members: ', _circle.members);
+    _group.addMembers(_circle.members);
+    console.log('group: ', _group);
+    console.log('group root: ', _group.root);
+    return _group;
+  }
+
+  // ZK3 Proof Creation
+  const createZK3Proof = async (_identity: Identity, _circle: circle, _signal: string) => {
+    console.log('start generateFullProof', _identity);
+    if (_identity && _circle && _signal) {
+      console.log('generating proof: ', _circle, _signal);
+    } else {
+      console.log('generateFullProof: failed argument check: ', _identity, _circle, _signal);
+      return;
+    }
+    const group = generateGroupFromCircle(_circle);
+    if (!group) {
+      console.log('no group');
+      return;
+    }
+    console.log('generateFullProof: passed all return checks');
+    // check if identity is part of the group
+    if (!group.indexOf(_identity.commitment.toString())) {
+      console.log('identity is not part of the group', _identity.commitment, group.members);
+      return;
+    }
+    const externalNullifier = group.root;
+    const hashedPostBody = BigNumber.from(keccak256(Buffer.from(_signal)));
+    // const merkleProof = await group.generateMerkleProof(group.indexOf(_identity.commitment))
+    console.log('root: ', group.root);
+    const fullProof: FullProof = await generateProof(_identity, group, externalNullifier, hashedPostBody);
+    console.log('fullProof: ', fullProof);
+
+    const success = await verifyProof(fullProof, 20);
+    console.log('isSuccess: ', success);
+    // todo: actually attach proof to post and send it (after testing that the proof is ok!)
+    return { proof: fullProof, group };
+  };
+
   const createPublication = async () => {
+    console.log('entering createPublication');
     if (!currentProfile) {
       return toast.error(SIGN_WALLET);
     }
@@ -417,7 +516,6 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
           return setPublicationContentError(issue.message);
         }
       }
-
       if (publicationContent.length === 0 && attachments.length === 0) {
         return setPublicationContentError(`${isComment ? 'Comment' : 'Post'} should not be empty!`);
       }
@@ -445,6 +543,15 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
           traitType: 'author',
           displayType: PublicationMetadataDisplayTypes.String,
           value: audioPublication.author
+        });
+      }
+
+      // add ZK3 metadata attributes
+      if (publicationSelectedCircle) {
+        attributes.push({
+          traitType: 'zk3Circle',
+          displayType: PublicationMetadataDisplayTypes.String,
+          value: publicationSelectedCircle.description
         });
       }
 
@@ -480,35 +587,119 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
       };
 
       let arweaveId = null;
+      let ipfsId = null;
       if (restricted) {
         arweaveId = await createTokenGatedMetadata(metadata);
+      } else if (publicationSelectedCircle) {
+        // ipfsId = await uploadToIPFS(metadata);
+        ipfsId = await uploadJSONToIPFS(JSON.stringify(metadata));
       } else {
         arweaveId = await createMetadata(metadata);
       }
 
+      const calcRefModule = () => {
+        if (selectedReferenceModule === ReferenceModules.FollowerOnlyReferenceModule) {
+          return { followerOnlyReferenceModule: onlyFollowers ? true : false };
+        }
+
+        return {
+          degreesOfSeparationReferenceModule: {
+            commentsRestricted: true,
+            mirrorsRestricted: true,
+            degreesOfSeparation
+          }
+        };
+      };
+      let initData: string = ZK3ReferenceModuleInitData;
+      if (publicationSelectedCircle) {
+        const { proof, group } = (await createZK3Proof(
+          identity!,
+          publicationSelectedCircle,
+          publicationContent
+        ))!;
+
+        const rootOnChain = await readContract({
+          address: SEMAPHORE_ZK3_CONTRACT_ADDRESS,
+          abi: SEMAPHORE_ZK3_CONTRACT_ABI,
+          functionName: 'getMerkleTreeRoot',
+          args: [BigNumber.from(publicationSelectedCircle?.id)]
+        });
+        const hashedPostBody = BigNumber.from(keccak256(Buffer.from(publicationContent)));
+        initData = ethers.utils.AbiCoder.prototype.encode(
+          ['bool', 'bool', 'uint256', 'uint256', 'uint256', 'uint256', 'uint256[8]'],
+          [
+            false,
+            false,
+            hashedPostBody,
+            proof?.nullifierHash,
+            publicationSelectedCircle?.id.toString(),
+            proof?.externalNullifier,
+            proof?.proof
+          ]
+        );
+        console.log('initData', initData);
+        setZK3ReferenceModuleInitData(initData);
+        console.log('ZK3ReferenceModuleInitData', ZK3ReferenceModuleInitData);
+
+        console.log('rootOnChain', rootOnChain.toString());
+        // check if roots match
+        if (rootOnChain.toString() !== group.root.toString()) {
+          console.log('localRoot', group.root.toString());
+          console.log("roots don't match");
+          return;
+        }
+        const isValid = await readContract({
+          address: SEMAPHORE_ZK3_CONTRACT_ADDRESS,
+          abi: SEMAPHORE_ZK3_CONTRACT_ABI,
+          functionName: 'isValidProof',
+          args: [
+            hashedPostBody,
+            BigNumber.from(proof?.nullifierHash),
+            BigNumber.from(publicationSelectedCircle?.id),
+            BigNumber.from(proof?.externalNullifier),
+            // @ts-ignore
+            proof?.proof
+          ]
+        });
+
+        console.log('isValid', isValid);
+      }
+
+      // const { error: postTxError, write: publishPost } = useContractWrite({
+      //   address: LENSHUB_PROXY,
+      //   abi: LensHub,
+      //   functionName: isComment ? 'comment' : 'post',
+      //   mode: 'recklesslyUnprepared',
+      //   onSuccess: ({ hash }) => {
+      //     onCompleted();
+      //     setTxnQueue([generateOptimisticPublication({ txHash: hash }), ...txnQueue]);
+      //   },
+      //   onError
+      // });
+
+      // if ZK3 Proof attached, temp force to ZK3 reference module
       const request: CreatePublicPostRequest | CreatePublicCommentRequest = {
         profileId: currentProfile?.id,
-        contentURI: `ar://${arweaveId}`,
+        contentURI: publicationSelectedCircle ? `${ipfsId}` : `ar://${arweaveId}`,
         ...(isComment && {
           publicationId: publication.__typename === 'Mirror' ? publication?.mirrorOf?.id : publication?.id
         }),
         collectModule: payload,
-        referenceModule:
-          selectedReferenceModule === ReferenceModules.FollowerOnlyReferenceModule
-            ? { followerOnlyReferenceModule: onlyFollowers ? true : false }
-            : {
-                degreesOfSeparationReferenceModule: {
-                  commentsRestricted: true,
-                  mirrorsRestricted: true,
-                  degreesOfSeparation
-                }
+        referenceModule: publicationSelectedCircle
+          ? {
+              unknownReferenceModule: {
+                contractAddress: ZK3ReferenceModule,
+                data: initData
               }
+            }
+          : calcRefModule()
       };
+
+      console.log('request', request);
 
       if (currentProfile?.dispatcher?.canUseRelay) {
         return await createViaDispatcher(request);
       }
-
       if (isComment) {
         return await createCommentTypedData({
           variables: {
@@ -517,7 +708,19 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
           }
         });
       }
-
+      console.log('checkpoint');
+      // return await publishPost({
+      //   recklesslySetUnpreparedArgs: [
+      //     {
+      //       profileId: request.profileId,
+      //       contentURI: request.contentURI,
+      //       collectModule: '0x',
+      //       collectModuleInitData: '0x',
+      //       referenceModule: ZK3ReferenceModule, // add address of LensZK3ReferenceModule here
+      //       referenceModuleInitData: initData // add ABI encoded proof here
+      //     }
+      //   ]
+      // });
       return await createPostTypedData({
         variables: { options: { overrideSigNonce: userSigNonce }, request }
       });

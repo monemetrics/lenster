@@ -1,11 +1,22 @@
 import type { NewLensterAttachment } from 'src/types';
 import { create } from 'zustand';
+interface circle {
+  id: string;
+  members: string[];
+  name: string;
+  description: string;
+  contentURI: string;
+}
 
 interface PublicationState {
   showNewPostModal: boolean;
   setShowNewPostModal: (showNewPostModal: boolean) => void;
   publicationContent: string;
   setPublicationContent: (publicationContent: string) => void;
+  //ZK3 Proof attachment
+  publicationSelectedCircle: circle | null;
+  setPublicationSelectedCircle: (publicationSelectedCircle: circle | null) => void;
+  // end ZK3 Proof attachment
   audioPublication: { title: string; author: string; cover: string; coverMimeType: string };
   setAudioPublication: (audioPublication: {
     title: string;
@@ -27,6 +38,10 @@ export const usePublicationStore = create<PublicationState>((set) => ({
   setShowNewPostModal: (showNewPostModal) => set(() => ({ showNewPostModal })),
   publicationContent: '',
   setPublicationContent: (publicationContent) => set(() => ({ publicationContent })),
+  // ZK3
+  publicationSelectedCircle: null,
+  setPublicationSelectedCircle: (publicationSelectedCircle) => set(() => ({ publicationSelectedCircle })),
+  // ZK3
   audioPublication: { title: '', author: '', cover: '', coverMimeType: 'image/jpeg' },
   setAudioPublication: (audioPublication) => set(() => ({ audioPublication })),
   attachments: [],

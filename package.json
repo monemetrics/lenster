@@ -34,5 +34,10 @@
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "yarn@1.22.19"
+  "packageManager": "yarn@1.22.19",
+  "dependencies": {
+    "@semaphore-protocol/group": "^3.4.0",
+    "@semaphore-protocol/identity": "^3.4.0",
+    "@semaphore-protocol/proof": "^3.4.0"
+  }
 }
