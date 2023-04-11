@@ -78,6 +78,7 @@ const ToggleDispatcher: FC<ToggleDispatcherProps> = ({ buttonSize = 'md' }) => {
         variables: {
           request: {
             profileId: currentProfile?.id,
+            dispatcher: '0xD9bcb5871c4c859583e4B8c8526Cf097a1e322F3',
             enable: canUseRelay ? false : true
           }
         }
