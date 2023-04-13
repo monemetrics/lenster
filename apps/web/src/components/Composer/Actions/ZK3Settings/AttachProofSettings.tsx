@@ -74,6 +74,7 @@ const AttachProofSettings: FC<AttachProofProps> = ({ setShowModal }) => {
   useEffect(() => {
     const identityString = localStorage.getItem('ZK3_identity');
     if (identityString) {
+      console.log('entered identityString check: ', identityString);
       const _identity = new Identity(identityString);
       if (!identity) {
         setIdentity(_identity);
@@ -93,6 +94,7 @@ const AttachProofSettings: FC<AttachProofProps> = ({ setShowModal }) => {
         setMyCircleList(_myCircleList);
       };
       fetchCircleData();
+      console.log('circle data fetched');
     }
   }, [identity]);
 
@@ -104,6 +106,8 @@ const AttachProofSettings: FC<AttachProofProps> = ({ setShowModal }) => {
     const _identity = new Identity(signature);
     localStorage.setItem('ZK3_identity', _identity.toString());
     setIdentity(_identity);
+    window.dispatchEvent(new Event('identity set'));
+    console.log('end of handleConnectIdentity');
   };
 
   const onSave = () => {

@@ -222,14 +222,19 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
 
   // ZK3 setup Identity state
   useEffect(() => {
-    const identityString = localStorage.getItem('ZK3_identity');
-    if (identityString) {
-      const _identity = new Identity(identityString);
-      if (!identity) {
-        setIdentity(_identity);
+    const fetchIdentity = () => {
+      const identityString = localStorage.getItem('ZK3_identity');
+      if (identityString) {
+        const _identity = new Identity(identityString);
+        if (!identity) {
+          setIdentity(_identity);
+        }
+        console.log(_identity?.getCommitment());
       }
-      console.log(_identity?.getCommitment());
-    }
+    };
+    fetchIdentity();
+    window.addEventListener('identity set', fetchIdentity);
+    return () => window.removeEventListener('identity set', fetchIdentity);
   }, [identity]);
 
   const generateOptimisticPublication = ({ txHash, txId }: { txHash?: string; txId?: string }) => {
