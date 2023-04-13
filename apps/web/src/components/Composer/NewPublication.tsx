@@ -460,7 +460,7 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
     const _group = new Group(_circle.id);
     console.log('roop pre adding members: ', _group.root);
     console.log('circle Members: ', _circle.members);
-    _group.addMembers(_circle.members);
+    _group.addMembers([...new Set(_circle.members)]);
     console.log('group: ', _group);
     console.log('group root: ', _group.root);
     return _group;
@@ -551,6 +551,19 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
         item: attachment.item!
       }));
 
+      if (publicationSelectedCircle) {
+        attributes.push({
+          traitType: 'zk3Circle',
+          displayType: PublicationMetadataDisplayTypes.String,
+          value: publicationSelectedCircle.description
+        });
+        attributes.push({
+          traitType: 'zk3CircleId',
+          displayType: PublicationMetadataDisplayTypes.String,
+          value: publicationSelectedCircle.id
+        });
+      }
+
       const metadata: PublicationMetadataV2Input = {
         version: '2.0.0',
         metadata_id: uuid(),
@@ -602,23 +615,15 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
       };
       let initData: string = ZK3ReferenceModuleInitData;
       if (publicationSelectedCircle) {
-        attributes.push({
-          traitType: 'zk3Circle',
-          displayType: PublicationMetadataDisplayTypes.String,
-          value: publicationSelectedCircle.description
-        });
-        attributes.push({
-          traitType: 'zk3CircleId',
-          displayType: PublicationMetadataDisplayTypes.String,
-          value: publicationSelectedCircle.id
-        });
-
         const { proof, group } = (await createZK3Proof(
           identity!,
           publicationSelectedCircle,
           publicationContent
         ))!;
 
+        console.log('rootOnChainArgs: ', SEMAPHORE_ZK3_CONTRACT_ADDRESS, [
+          BigNumber.from(publicationSelectedCircle?.id)
+        ]);
         const rootOnChain = await readContract({
           address: SEMAPHORE_ZK3_CONTRACT_ADDRESS,
           abi: SEMAPHORE_ZK3_CONTRACT_ABI,
@@ -695,19 +700,8 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
         };
 
         const result = await broadcastPost();
+        console.log('result: ', result);
       } else {
-        // const { error: postTxError, write: publishPost } = useContractWrite({
-        //   address: LENSHUB_PROXY,
-        //   abi: LensHub,
-        //   functionName: isComment ? 'comment' : 'post',
-        //   mode: 'recklesslyUnprepared',
-        //   onSuccess: ({ hash }) => {
-        //     onCompleted();
-        //     setTxnQueue([generateOptimisticPublication({ txHash: hash }), ...txnQueue]);
-        //   },
-        //   onError
-        // });
-
         // if ZK3 Proof attached, temp force to ZK3 reference module
         const request: CreatePublicPostRequest | CreatePublicCommentRequest = {
           profileId: currentProfile?.id,
