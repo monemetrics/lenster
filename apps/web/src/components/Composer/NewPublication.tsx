@@ -706,6 +706,9 @@ const NewPublication: FC<NewPublicationProps> = ({ publication }) => {
 
         const result = await broadcastPost();
         console.log('result: ', result);
+        if (result.broadcastPost) {
+          setShowNewPostModal(false);
+        }
       } else {
         // if ZK3 Proof attached, temp force to ZK3 reference module
         const request: CreatePublicPostRequest | CreatePublicCommentRequest = {
